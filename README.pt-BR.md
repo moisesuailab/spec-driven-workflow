@@ -195,6 +195,21 @@ Cada feature segue o mesmo ciclo de três fases, sempre em sessões isoladas.
 
 > O agente para após cada tarefa e aguarda sua confirmação. Isso é intencional.
 
+### Transição entre fases
+
+Cada fase termina quando você revisa e aprova os artefatos gerados. Para avançar à próxima
+fase, abra uma **nova sessão do agente** e referencie a pasta da spec — os artefatos no
+filesystem são o único contexto que o agente precisa.
+
+**Research → Plan:**
+> *"Leia e siga `agents/prompts/rpi-plan.md`. A spec está em `agents/specs/NNN-nome-da-spec/`"*
+
+**Plan → Implement:**
+> *"Leia e siga `agents/prompts/rpi-implement.md`. A spec está em `agents/specs/NNN-nome-da-spec/`"*
+
+> O caminho da spec é o único contexto adicional necessário. Sem ele o agente não consegue
+> determinar qual spec está ativa se houver mais de uma em andamento.
+
 ### Pasta da spec após um ciclo completo
 
 ```

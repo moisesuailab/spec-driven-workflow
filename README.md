@@ -265,6 +265,21 @@ Each feature follows the same three-phase cycle, always in isolated sessions.
 
 > The agent stops after each task and waits for your confirmation. This is by design.
 
+### Phase transitions
+
+Each phase ends when you review and approve the generated artifacts. To move to the next
+phase, open a **new agent session** and reference the spec folder — the artifacts on the
+filesystem are the only context the agent needs.
+
+**Research → Plan:**
+> *"Read and follow `agents/prompts/rpi-plan.md`. The spec is at `agents/specs/NNN-feature-name/`"*
+
+**Plan → Implement:**
+> *"Read and follow `agents/prompts/rpi-implement.md`. The spec is at `agents/specs/NNN-feature-name/`"*
+
+> The spec folder path is the only additional context required. Without it, the agent
+> cannot determine which spec is active if more than one exists.
+
 ### Spec folder after a complete cycle
 
 ```
