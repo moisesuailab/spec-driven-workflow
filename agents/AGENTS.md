@@ -33,7 +33,7 @@ RESEARCH → PLAN → IMPLEMENT → TEST
 | Plan | `rpi-plan.md` | `PROJECT.md` + `RULES.md` + `RESEARCH.md` | `SPEC.md` + `TASK.md` + `PROGRESS.md` + `TEST.md` |
 | Implement | `rpi-implement.md` | `PROJECT.md` + `RULES.md` + `SPEC.md` + `TASK.md` + `PROGRESS.md` + relevant skill(s)¹ | code + updated `TASK.md` + updated `PROGRESS.md` |
 
-> ¹ Check `agents/skills/` for available skills relevant to the task (e.g. UI, data access, validation). Load only what the task requires.
+> ¹ Run `grep -A 8 "## When to use" agents/skills/*.md` to scan skill descriptions. Load full file only for skills relevant to the task.
 
 ---
 
@@ -56,7 +56,7 @@ agents/specs/NNN-feature-name/
 1. Read the feature's `SPEC.md`
 2. Read `TASK.md` and identify the current task (first unchecked `[ ]`)
 3. Read `PROGRESS.md` to understand the current state
-4. Check `agents/skills/` for any skill relevant to this task and load it
+4. Run `grep -A 8 "## When to use" agents/skills/*.md` to read only the "When to use" section of each skill. Load the full file only for skills relevant to this task.
 5. If there is ambiguity, **ask before generating code**
 
 ---
