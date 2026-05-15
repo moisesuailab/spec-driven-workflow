@@ -1,4 +1,4 @@
-# SDD Workflow — Developer Manual
+# SDD Workflow
 
 A structured workflow for AI-assisted development using **Spec Driven Development (SDD)** and the **Research → Plan → Implement (RPI)** methodology.
 
