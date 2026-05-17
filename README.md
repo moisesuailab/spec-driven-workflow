@@ -2,7 +2,7 @@
 
 A structured workflow for AI-assisted development using **Spec Driven Development (SDD)** and the **Research → Plan → Implement (RPI)** methodology.
 
-Designed for agentic IDEs with filesystem access (Claude Code, Antigravity, OpenCode, Codex CLI, and others), where the agent acts as a pair programmer: controlled, traceable, and spec-driven.
+Designed for agentic IDEs with filesystem access (Claude Code, OpenCode, Codex CLI, and others), where the agent acts as a pair programmer: controlled, traceable, and spec-driven.
 
 ---
 
@@ -48,7 +48,7 @@ Each session starts fresh. Passing only the artifact from the previous phase —
 
 ## 2. Prerequisites
 
-- An agentic IDE with **filesystem read/write access** (Claude Code, Antigravity, OpenCode, Codex CLI, Cursor, Windsurf, or equivalent)
+- An agentic IDE with **filesystem read/write access** (Claude Code, OpenCode, Codex CLI, Cursor, Windsurf, or equivalent)
 - The agent must be able to read and write files within the project directory
 - No specific language or framework required — the workflow is stack-agnostic
 
@@ -57,24 +57,37 @@ Each session starts fresh. Passing only the artifact from the previous phase —
 ## 3. Directory Structure
 
 ```
+AGENTS.md                       ← Entry point — auto-loaded by any harness (do not modify)
+opencode.json                   ← Optional: OpenCode harness config
+.claude/
+  settings.json                 ← Optional: Claude Code harness config
 agents/
-  AGENTS.md                   ← Agent role and SDD cycle definition
-  RULES.md                    ← Mandatory process rules (git, tasks, decisions)
-  PROJECT.md                  ← Stack, architecture, and stack-specific rules
-  DECISIONS.md                ← Append-only architectural decisions log
-  SETUP.md                    ← Initial setup guide (delete after setup)
+  AGENTS.md                     ← Full workflow definition and SDD cycle
+  RULES.md                      ← Mandatory process rules (git, tasks, decisions)
+  PROJECT.md                    ← Stack, architecture, and stack-specific rules
+  DECISIONS.md                  ← Append-only architectural decisions log
+  SETUP.md                      ← Initial setup guide (delete after setup)
+  harness/                      ← Optional enforcement configs per harness
+    README.md
+    claude-code/
+      settings.json             ← Copy to .claude/settings.json to activate
+    opencode/
+      opencode.json             ← Copy to project root to activate
   prompts/
-    rpi-research.md           ← Phase 1: Research prompt
-    rpi-plan.md               ← Phase 2: Plan prompt
-    rpi-implement.md          ← Phase 3: Implement prompt
-    task-create.md            ← Utility: create a task manually
-    skill-call.md             ← Utility: invoke a specific skill
-    conventional-commit.md    ← Utility: generate a conventional commit message
-    pr-template.md            ← Utility: generate a pull request description
+    rpi-research.md             ← Phase 1: Research prompt
+    rpi-plan.md                 ← Phase 2: Plan prompt
+    rpi-implement.md            ← Phase 3: Implement prompt
+    task-create.md              ← Utility: create a task manually
+    skill-call.md               ← Utility: invoke a specific skill
+    conventional-commit.md      ← Utility: generate a conventional commit message
+    pr-template.md              ← Utility: generate a pull request description
   skills/
-    [one .md file per capability]
+    _template/
+      SKILL.md                  ← Template for new skills
+    [capability-name]/          ← One folder per reusable capability
+      SKILL.md
   specs/
-    001-feature-name/
+    NNN-feature-name/
       RESEARCH.md
       SPEC.md
       TASK.md
@@ -97,20 +110,18 @@ docs/                         ← optional, at project root
   research/                   ← technical spikes and evaluations
 ```
 
-These documents are not part of the workflow itself — they are consulted as input
-during Research and Plan phases when relevant.
+These documents are not part of the workflow itself — they are consulted as input during Research and Plan phases when relevant.
 
 ---
 
 ### Files read on every session
 
-`AGENTS.md`, `PROJECT.md`, `RULES.md`
-
+`AGENTS.md` (root) → `agents/AGENTS.md`, `agents/PROJECT.md`, `agents/RULES.md`
 > Keep these files dense and scannable. Every token counts.
 
 ### Files read per task (on demand)
 
-`SPEC.md`, `TASK.md`, `PROGRESS.md`, and relevant skills from `agents/skills/`
+`agents/specs/NNN/SPEC.md`, `TASK.md`, `PROGRESS.md`, and relevant skills from `agents/skills/*/SKILL.md`
 
 ---
 
@@ -118,88 +129,23 @@ during Research and Plan phases when relevant.
 
 ### Step 1 — Copy the template
 
-Copy **only the `agents/` directory** into the root of your project. No other files from
-this repository are required — the `README.md` and any other root-level files stay behind.
+Copy **the root `AGENTS.md` and the `agents/` directory** into the root of your project.
+
+```
+AGENTS.md        ← required at project root
+agents/          ← required
+```
+
+The `README.md` and any other files stay behind — they are not needed in the target project.
 
 ### Step 2 — Run the setup
 
 Open a new agent session and instruct the agent to follow the setup file:
-
 > *"Read and follow the instructions in `agents/SETUP.md`"*
 
-The agent will read the file directly from the filesystem and configure the workflow automatically based on what you provide. No need to copy or paste its contents.
+The agent will read the file directly from the filesystem and configure the workflow automatically based on what you provide.
 
-The setup file instructs the agent to:
-
-```
-Read agents/AGENTS.md, agents/RULES.md, and agents/SETUP.md.
-
-Your job is to configure this project's SDD workflow by producing three outputs:
-agents/PROJECT.md, agents/DECISIONS.md, and one skill file per relevant capability
-in agents/skills/.
-
-## Input sources (use what is available, in this order of priority)
-
-1. PRD or requirements document — if provided, extract stack, architecture, and rules from it
-2. Existing project files — scan the codebase: package.json, pyproject.toml, tsconfig.json,
-   README, src/ structure, config files, and any existing documentation
-3. Ask me — if neither is available or if critical information is missing, ask before generating
-
-## Output 1 — agents/PROJECT.md
-
-Produce a dense, scannable file. Prefer tables over paragraphs. Include:
-
-- Project name and purpose (1–2 sentences)
-- Runtime, framework, and key libraries (actual versions if detectable)
-- Persistence layer and access method
-- Frontend stack (if any)
-- File and module structure (table: path → responsibility)
-- Architecture patterns in use (e.g. layered, repository, MVC)
-- Stack Rules: rules already enforced in the codebase
-  (naming conventions, forbidden patterns, mandatory abstractions, etc.)
-
-## Output 2 — agents/DECISIONS.md
-
-For new projects: leave the header only, no entries yet.
-For existing projects: document architectural decisions already present in the codebase.
-  Look for: chosen libraries over alternatives, folder organization rationale,
-  patterns used consistently, anything that would be a "why did we do it this way" question.
-  Format each entry as:
-  ### [YYYY-MM-DD] Decision title
-  **Context:** why this decision existed
-  **Decision:** what was chosen
-  **Consequences:** what this implies going forward
-
-## Output 3 — agents/skills/*.md
-
-Identify which capability domains exist in this project and create one skill file per domain.
-Common domains: ui-components, data-access, auth, validation, api-integration, error-handling.
-Only create skills that are actually relevant to this project — do not create generic placeholders.
-
-Each skill file must follow this structure:
-
-# Skill: [Capability Name]
-
-## When to use this skill
-[Specific task types that should load this skill]
-
-## Patterns
-[Correct approach with concise code examples from this project's stack]
-
-## Anti-patterns
-[What NOT to do, with reason]
-
-## Checklist
-- [ ] Items the agent must verify before finishing a task using this skill
-
-## Constraints
-
-- Produce only the three outputs above — no other files
-- Do not create specs or implement any feature
-- Do not run git commands
-- If any critical information is missing and cannot be inferred, ask before generating
-- After delivering all files, wait for my review and approval
-```
+The setup file instructs the agent to produce three outputs: `agents/PROJECT.md`, `agents/DECISIONS.md`, and one skill folder per relevant capability in `agents/skills/`.
 
 ---
 
@@ -211,17 +157,17 @@ Each skill file must follow this structure:
 | Existing project | Just send the instruction — the agent scans the codebase |
 | Existing project + PRD | Provide the PRD alongside — the agent combines both sources |
 
-> The agent accepts requirements in any form: a file path (`docs/prd.md`), an inline
-> description in the prompt, or an attached document. Use whatever is most convenient.
+> The agent accepts requirements in any form: a file path (`docs/prd.md`), an inline description in the prompt, or an attached document.
 
 ### Step 3 — Review and delete SETUP.md
 
 After the agent generates the files, review them and confirm:
 
-- [ ] `PROJECT.md` has no `[FILL: ...]` placeholders remaining
-- [ ] `DECISIONS.md` reflects existing decisions (existing projects) or is empty (new projects)
-- [ ] At least one skill file exists in `agents/skills/`
-- [ ] `AGENTS.md` and `RULES.md` are unmodified
+- [ ] Root `AGENTS.md` is present and unmodified
+- [ ] `agents/PROJECT.md` has no `[FILL: ...]` placeholders remaining
+- [ ] `agents/DECISIONS.md` reflects existing decisions (existing projects) or is empty (new projects)
+- [ ] At least one skill folder exists in `agents/skills/` (e.g. `agents/skills/data-access/SKILL.md`)
+- [ ] `agents/AGENTS.md` and `agents/RULES.md` are unmodified
 
 Then delete `agents/SETUP.md`.
 
@@ -268,17 +214,13 @@ Each feature follows the same three-phase cycle, always in isolated sessions.
 ### Phase transitions
 
 Each phase ends when you review and approve the generated artifacts. To move to the next
-phase, open a **new agent session** and reference the spec folder — the artifacts on the
-filesystem are the only context the agent needs.
+phase, open a **new agent session** and reference the spec folder.
 
 **Research → Plan:**
 > *"Read and follow `agents/prompts/rpi-plan.md`. The spec is at `agents/specs/NNN-feature-name/`"*
 
 **Plan → Implement:**
 > *"Read and follow `agents/prompts/rpi-implement.md`. The spec is at `agents/specs/NNN-feature-name/`"*
-
-> The spec folder path is the only additional context required. Without it, the agent
-> cannot determine which spec is active if more than one exists.
 
 ### Spec folder after a complete cycle
 
@@ -300,7 +242,13 @@ Skills are focused instruction files the agent loads **only when a task requires
 
 ### How the agent decides which skills to load
 
-Before implementing a task, the agent scans `agents/skills/` and reads the **"When to use this skill"** section of each file. If the section matches the current task, the skill is loaded into context.
+Before implementing a task, the agent runs:
+
+```bash
+grep -A 8 "## When to use" agents/skills/*/SKILL.md
+```
+
+It reads only the "When to use this skill" section of each file. If the section matches the current task, the full `SKILL.md` is loaded.
 
 > The quality of skill detection depends directly on how specific and accurate the "When to use" section is.
 
@@ -324,18 +272,21 @@ Use `agents/prompts/skill-call.md` when you want to guarantee a skill is applied
 
 ## Checklist
 - [ ] Items to verify before finishing the task
+
+## Constraints
+- [Hard rule specific to this capability]
 ```
 
 ### Common skills to create
 
-| File | Create when... |
+| Folder | Create when... |
 |---|---|
-| `ui-components.md` | Project has a UI layer |
-| `data-access.md` | Project uses a database or persistence layer |
-| `auth.md` | Project has authentication or authorization |
-| `validation.md` | Project validates user or external input |
-| `api-integration.md` | Project calls external APIs |
-| `error-handling.md` | Project has a defined error format or logging strategy |
+| `agents/skills/ui-components/` | Project has a UI layer |
+| `agents/skills/data-access/` | Project uses a database or persistence layer |
+| `agents/skills/auth/` | Project has authentication or authorization |
+| `agents/skills/validation/` | Project validates user or external input |
+| `agents/skills/api-integration/` | Project calls external APIs |
+| `agents/skills/error-handling/` | Project has a defined error format or logging strategy |
 
 ---
 
@@ -355,13 +306,11 @@ These prompts are used manually by the developer — they are not part of the RP
 Open a new agent session and instruct the agent to read the prompt file directly:
 > *"Read and follow `agents/prompts/conventional-commit.md`"*
 
-Replace the prompt filename with the one you need. Replace any `<PLACEHOLDERS>` mentioned in the file with the relevant values.
-
 ---
 
 ## 8. Behavioral Rules
 
-These rules are defined in `AGENTS.md` and `RULES.md` and apply to every session:
+These rules are defined in `agents/AGENTS.md` and `agents/RULES.md` and apply to every session:
 
 | Rule | Description |
 |---|---|
@@ -382,20 +331,14 @@ These rules are defined in `AGENTS.md` and `RULES.md` and apply to every session
 
 ## 9. Best Practices
 
-**Keep PROJECT.md lean**
-It is read on every single session. Every unnecessary line costs tokens. Use tables, avoid paragraphs.
+**Keep PROJECT.md lean** — it is read on every single session. Every unnecessary line costs tokens. Use tables, avoid paragraphs.
 
-**One spec per feature, one task per session**
-Resist the urge to bundle. Small, atomic tasks produce more predictable and reviewable output.
+**One spec per feature, one task per session** — resist the urge to bundle. Small, atomic tasks produce more predictable and reviewable output.
 
-**Review before confirming**
-The agent stops after each task and waits for your approval. Use this checkpoint — review the diff before confirming the next task.
+**Review before confirming** — the agent stops after each task and waits for your approval. Use this checkpoint — review the diff before confirming the next task.
 
-**Skills over repeated instructions**
-If you find yourself explaining the same pattern in multiple sessions, it belongs in a skill file.
+**Skills over repeated instructions** — if you find yourself explaining the same pattern in multiple sessions, it belongs in a skill file.
 
-**Decisions are permanent context**
-Every entry in `DECISIONS.md` prevents the agent from questioning or re-deciding something already settled. Keep it up to date.
+**Decisions are permanent context** — every entry in `DECISIONS.md` prevents the agent from questioning or re-deciding something already settled. Keep it up to date.
 
-**Don't modify AGENTS.md or RULES.md**
-Stack-specific rules belong in `PROJECT.md` under the Stack Rules section. Modifying the core files breaks the workflow contract.
+**Don't modify `agents/AGENTS.md` or `agents/RULES.md`** — stack-specific rules belong in `agents/PROJECT.md` under the Stack Rules section.

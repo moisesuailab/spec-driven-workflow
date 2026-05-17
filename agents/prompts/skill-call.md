@@ -13,7 +13,7 @@ Read:
 - `agents/specs/<SPEC_NUMBER>/SPEC.md`
 - `agents/specs/<SPEC_NUMBER>/TASK.md`
 - `agents/specs/<SPEC_NUMBER>/PROGRESS.md`
-- `agents/skills/<SKILL_NAME>.md`
+- `agents/skills/<SKILL_NAME>/SKILL.md`
 
 Now implement ONLY the task: `<TASK_ID>`
 

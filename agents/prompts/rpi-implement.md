@@ -15,7 +15,7 @@ You will implement **one single task** from an already planned feature.
 - `agents/specs/NNN-name/SPEC.md`
 - `agents/specs/NNN-name/TASK.md` — identify the first unchecked `[ ]`
 - `agents/specs/NNN-name/PROGRESS.md`
-- Check `agents/skills/` for any skill relevant to this task and load it
+- Run `grep -A 8 "## When to use" agents/skills/*/SKILL.md` — load the full `SKILL.md` only for skills relevant to this task
 
 **Expected input:**
 - Spec number (e.g. `001`)

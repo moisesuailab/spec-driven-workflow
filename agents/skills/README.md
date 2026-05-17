@@ -2,35 +2,58 @@
 
 This directory contains stack-specific reusable instructions for the agent.
 
-Each `.md` file in this directory is a **skill** — a focused guide the agent loads
+Each subfolder contains a **`SKILL.md`** — a focused guide the agent loads
 only when a task requires that specific capability.
+
+---
+
+## Structure
+
+```
+agents/skills/
+  _template/
+    SKILL.md          ← Template for new skills (copy to start a new one)
+  ui-components/
+    SKILL.md
+  data-access/
+    SKILL.md
+  auth/
+    SKILL.md
+  ...
+```
 
 ---
 
 ## How to create a skill
 
-Create one file per capability. The agent will load it only when relevant.
+1. Copy `_template/SKILL.md` into a new folder named after the capability
+2. Fill in all sections — especially `## When to use this skill`
+3. The agent scans skills with: `grep -A 8 "## When to use" agents/skills/*/SKILL.md`
 
-### Recommended skill files for most projects
-
-| File | Purpose |
-|---|---|
-| `ui-components.md` | Patterns for creating UI components (framework-specific) |
-| `data-access.md` | ORM/query patterns, naming conventions, anti-patterns |
-| `auth.md` | Authentication and authorization patterns |
-| `validation.md` | Input validation approach and reusable validators |
-| `api-integration.md` | Patterns for calling external APIs |
-| `error-handling.md` | Error classes, response format, logging conventions |
+> The "When to use this skill" section is what the agent reads to decide whether to load the full file. Be specific — vague descriptions reduce detection accuracy.
 
 ---
 
-## Skill file structure (recommended)
+## Recommended skills for most projects
+
+| Folder | Purpose |
+|---|---|
+| `ui-components/` | Patterns for creating UI components (framework-specific) |
+| `data-access/` | ORM/query patterns, naming conventions, anti-patterns |
+| `auth/` | Authentication and authorization patterns |
+| `validation/` | Input validation approach and reusable validators |
+| `api-integration/` | Patterns for calling external APIs |
+| `error-handling/` | Error classes, response format, logging conventions |
+
+---
+
+## SKILL.md structure
 
 ```markdown
 # Skill: [Capability Name]
 
 ## When to use this skill
-[Describe which types of tasks should load this skill]
+[Describe which types of tasks should load this skill — be specific]
 
 ## Patterns
 [Code examples of the correct approach]
@@ -40,4 +63,7 @@ Create one file per capability. The agent will load it only when relevant.
 
 ## Checklist
 - [ ] Item agents must verify before finishing the task
+
+## Constraints
+- [Hard rule specific to this capability]
 ```

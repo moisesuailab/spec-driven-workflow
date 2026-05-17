@@ -18,15 +18,23 @@ No code is written without a `SPEC.md` and a `TASK.md`.
 
 ---
 
+## Entry point
+
+The root `AGENTS.md` (at the project root) is the file auto-loaded by any harness.
+It bootstraps the session and references the files below.
+
+---
+
 ## Directory map
 
 | Path | Purpose | Read when |
 |---|---|---|
-| `AGENTS.md` | Agent role and SDD cycle definition | Every session |
+| `AGENTS.md` | Full workflow definition and SDD cycle | Every session (via root `AGENTS.md`) |
 | `RULES.md` | Mandatory process rules | Every session |
 | `PROJECT.md` | Stack, architecture, stack-specific rules | Every session |
 | `DECISIONS.md` | Append-only architectural decisions log | Every session |
 | `SETUP.md` | Initial setup guide — **delete after setup** | Setup only |
+| `harness/` | Optional enforcement configs per harness — see `harness/README.md` | Setup only |
 | `prompts/` | Phase and utility prompts — see `prompts/README.md` | Per phase / on demand |
 | `skills/` | Stack-specific capability instructions — see `skills/README.md` | Per task, on demand |
 | `specs/` | One folder per feature, auto-populated during development | Per feature session |
@@ -45,14 +53,10 @@ No code is written without a `SPEC.md` and a `TASK.md`.
 
 ## Files to never modify
 
-- `AGENTS.md`
-- `RULES.md`
-- All files inside `prompts/`
+- `AGENTS.md` (root, project root)
+- `agents/AGENTS.md`
+- `agents/RULES.md`
+- All files inside `agents/prompts/`
+- `agents/skills/_template/SKILL.md`
 
-Stack-specific rules belong in `PROJECT.md` under the **Stack Rules** section.
-
----
-
-## Reference
-
-For the full workflow documentation, see `MANUAL.md` at the project root (if available).
+Stack-specific rules belong in `agents/PROJECT.md` under the **Stack Rules** section.

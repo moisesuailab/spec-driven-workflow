@@ -9,28 +9,40 @@ This template implements the **SDD (Spec Driven Development)** workflow using th
 ## Directory Structure
 
 ```
+AGENTS.md               ← Entry point — auto-loaded by any harness (do not modify)
+opencode.json           ← Optional: OpenCode harness config (copy from agents/harness/opencode/)
+.claude/
+  settings.json         ← Optional: Claude Code harness config (copy from agents/harness/claude-code/)
 agents/
-  AGENTS.md           ← Agent behavior and SDD cycle (do not modify)
-  RULES.md            ← Process rules: git, tasks, decisions (do not modify)
-  PROJECT.md          ← ⚠️  FILL THIS: stack, architecture, stack-specific rules
-  DECISIONS.md        ← Architectural decisions log (append-only)
-  SETUP.md            ← This file. Delete after setup is complete
+  AGENTS.md             ← Full workflow definition (do not modify)
+  RULES.md              ← Process rules: git, tasks, decisions (do not modify)
+  PROJECT.md            ← ⚠️  FILL THIS: stack, architecture, stack-specific rules
+  DECISIONS.md          ← Architectural decisions log (append-only)
+  SETUP.md              ← This file. Delete after setup is complete
+  harness/              ← Optional enforcement configs per harness (copy to project root to activate)
+    claude-code/
+      settings.json     ← Claude Code: example config — permissions + hooks (customize as needed)
+    opencode/
+      opencode.json     ← OpenCode: example config — instructions + permissions (customize as needed)
   prompts/
-    rpi-research.md   ← Phase 1 prompt (do not modify)
-    rpi-plan.md       ← Phase 2 prompt (do not modify)
-    rpi-implement.md  ← Phase 3 prompt (do not modify)
-    task-create.md    ← Utility prompt (do not modify)
-    skill-call.md     ← Utility prompt (do not modify)
+    rpi-research.md     ← Phase 1 prompt (do not modify)
+    rpi-plan.md         ← Phase 2 prompt (do not modify)
+    rpi-implement.md    ← Phase 3 prompt (do not modify)
+    task-create.md      ← Utility prompt (do not modify)
+    skill-call.md       ← Utility prompt (do not modify)
     conventional-commit.md  ← Utility prompt (do not modify)
-    pr-template.md    ← Utility prompt (do not modify)
+    pr-template.md      ← Utility prompt (do not modify)
   skills/
-    [empty]           ← ⚠️  CREATE: one .md file per reusable capability
+    _template/
+      SKILL.md          ← Template for new skills (do not modify)
+    [capability-name]/  ← ⚠️  CREATE: one folder per reusable capability
+      SKILL.md
   specs/
-    [empty]           ← Auto-populated as features are developed
+    [empty]             ← Auto-populated as features are developed
 ```
 
-**Files to adjust per project:** `PROJECT.md`, `DECISIONS.md`, `skills/*.md`
-**Never modify:** `AGENTS.md`, `RULES.md`, all `prompts/*.md`
+**Files to adjust per project:** `PROJECT.md`, `DECISIONS.md`, `agents/skills/<name>/SKILL.md`
+**Never modify:** `AGENTS.md` (root), `agents/AGENTS.md`, `agents/RULES.md`, all `agents/prompts/`
 
 ---
 
@@ -46,7 +58,8 @@ Copy and use this prompt in your agentic IDE:
 Read agents/AGENTS.md, agents/RULES.md, and agents/SETUP.md.
 
 Your job is to configure this project's SDD workflow by producing three outputs:
-agents/PROJECT.md, agents/DECISIONS.md, and one skill file per relevant capability in agents/skills/.
+agents/PROJECT.md, agents/DECISIONS.md, and one skill folder per relevant capability
+in agents/skills/.
 
 ## Input sources (use what is available, in this order of priority)
 
@@ -80,13 +93,14 @@ For existing projects: document architectural decisions already present in the c
   **Decision:** what was chosen
   **Consequences:** what this implies going forward
 
-## Output 3 — agents/skills/*.md
+## Output 3 — agents/skills/<name>/SKILL.md
 
-Identify which capability domains exist in this project and create one skill file per domain.
+Identify which capability domains exist in this project and create one folder per domain,
+each containing a single SKILL.md file.
 Common domains: ui-components, data-access, auth, validation, api-integration, error-handling.
 Only create skills that are actually relevant to this project — do not create generic placeholders.
 
-Each skill file must follow this structure:
+Each SKILL.md must follow this structure:
 # Skill: [Capability Name]
 
 ## When to use this skill
@@ -138,31 +152,54 @@ If you prefer to fill the files yourself:
 
 ### Step 3 — Create Skills
 
-Create one `.md` file per capability in `agents/skills/`.
+Create one folder per capability inside `agents/skills/`, each containing a `SKILL.md` file.
 
 **New project:** base skills on your planned stack.
 **Existing project:** extract patterns from the actual codebase — look at how data access, validation, and UI are already handled, and encode those patterns into skills.
 
-| Skill file | When to create |
+| Skill folder | When to create |
 |---|---|
-| `ui-components.md` | Project has a UI layer |
-| `data-access.md` | Project touches a database or persistence layer |
-| `auth.md` | Project has authentication or authorization |
-| `validation.md` | Project validates user or external input |
-| `api-integration.md` | Project calls external APIs |
-| `error-handling.md` | Project has a defined error format or logging strategy |
+| `agents/skills/ui-components/SKILL.md` | Project has a UI layer |
+| `agents/skills/data-access/SKILL.md` | Project touches a database or persistence layer |
+| `agents/skills/auth/SKILL.md` | Project has authentication or authorization |
+| `agents/skills/validation/SKILL.md` | Project validates user or external input |
+| `agents/skills/api-integration/SKILL.md` | Project calls external APIs |
+| `agents/skills/error-handling/SKILL.md` | Project has a defined error format or logging strategy |
+
+Use `agents/skills/_template/SKILL.md` as the starting point for each new skill.
 
 > The "When to use this skill" section is critical — it is what the agent reads to decide whether to load the skill for a given task.
 
-### Step 4 — Validate Before First Spec
+### Step 4 — Activate harness configs (optional)
+ 
+If you use Claude Code or OpenCode, copy the relevant config to add an enforcement layer at the tool level:
+ 
+**Claude Code:**
+```bash
+mkdir -p .claude && cp agents/harness/claude-code/settings.json .claude/settings.json
+```
+ 
+**OpenCode:**
+```bash
+cp agents/harness/opencode/opencode.json opencode.json
+```
+ 
+These configs add an enforcement layer at the tool level, complementing the behavioral rules in `RULES.md`. The provided examples block or ask confirmation for certain commands — adjust them to match your team's needs. If you use hooks (Claude Code only), also run:
+ 
+```bash
+chmod +x agents/harness/claude-code/.hooks/*.sh
+```
+
+### Step 5 — Validate Before First Spec
 
 Before starting the first RPI cycle, confirm:
 
-- [ ] `PROJECT.md` has no `[FILL: ...]` placeholders remaining
-- [ ] `DECISIONS.md` reflects existing architectural decisions (existing projects)
-- [ ] At least one skill file exists in `agents/skills/`
-- [ ] `AGENTS.md` and `RULES.md` are unmodified
-- [ ] `SETUP.md` is deleted
+- [ ] Root `AGENTS.md` is present and unmodified
+- [ ] `agents/PROJECT.md` has no `[FILL: ...]` placeholders remaining
+- [ ] `agents/DECISIONS.md` reflects existing architectural decisions (existing projects)
+- [ ] At least one skill folder exists in `agents/skills/` (e.g. `agents/skills/data-access/SKILL.md`)
+- [ ] `agents/AGENTS.md` and `agents/RULES.md` are unmodified
+- [ ] `agents/SETUP.md` is deleted
 
 ---
 
@@ -180,8 +217,8 @@ When setup is complete:
 
 | File | Recommended language |
 |---|---|
-| `AGENTS.md`, `RULES.md`, `prompts/` | **English** — read every session, token-sensitive |
-| `PROJECT.md` | **English** — read every session, token-sensitive |
-| `skills/` | **English** — read per task, token-sensitive |
-| `DECISIONS.md` | Team's language — written rarely, read occasionally |
-| `specs/` (RESEARCH, SPEC, TASK, etc.) | Team's language — scoped per feature |
+| `AGENTS.md` (root), `agents/AGENTS.md`, `agents/RULES.md`, `agents/prompts/` | **English** — read every session, token-sensitive |
+| `agents/PROJECT.md` | **English** — read every session, token-sensitive |
+| `agents/skills/` | **English** — read per task, token-sensitive |
+| `agents/DECISIONS.md` | Team's language — written rarely, read occasionally |
+| `agents/specs/` (RESEARCH, SPEC, TASK, etc.) | Team's language — scoped per feature |

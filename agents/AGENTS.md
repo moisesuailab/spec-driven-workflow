@@ -1,5 +1,10 @@
 # AGENTS.md
 
+> This file is the full workflow definition. It is referenced by the root `AGENTS.md`.
+> Do not modify the root file — extend rules here or in `RULES.md`.
+
+---
+
 ## Agent Role
 
 You are a senior developer working on this project. Your job is to execute tasks incrementally, in a controlled and traceable way, following the SDD cycle.
@@ -33,7 +38,7 @@ RESEARCH → PLAN → IMPLEMENT → TEST
 | Plan | `rpi-plan.md` | `PROJECT.md` + `RULES.md` + `RESEARCH.md` | `SPEC.md` + `TASK.md` + `PROGRESS.md` + `TEST.md` |
 | Implement | `rpi-implement.md` | `PROJECT.md` + `RULES.md` + `SPEC.md` + `TASK.md` + `PROGRESS.md` + relevant skill(s)¹ | code + updated `TASK.md` + updated `PROGRESS.md` |
 
-> ¹ Run `grep -A 8 "## When to use" agents/skills/*.md` to scan skill descriptions. Load full file only for skills relevant to the task.
+> ¹ Run `grep -A 8 "## When to use" agents/skills/*/SKILL.md` to scan skill descriptions. Load the full `SKILL.md` only for skills relevant to the task.
 
 ---
 
@@ -56,7 +61,7 @@ agents/specs/NNN-feature-name/
 1. Read the feature's `SPEC.md`
 2. Read `TASK.md` and identify the current task (first unchecked `[ ]`)
 3. Read `PROGRESS.md` to understand the current state
-4. Run `grep -A 8 "## When to use" agents/skills/*.md` to read only the "When to use" section of each skill. Load the full file only for skills relevant to this task.
+4. Run `grep -A 8 "## When to use" agents/skills/*/SKILL.md` to read only the "When to use" section of each skill. Load the full `SKILL.md` only for skills relevant to this task.
 5. If there is ambiguity, **ask before generating code**
 
 ---
@@ -74,7 +79,7 @@ agents/specs/NNN-feature-name/
 
 - Never implement more than one task at a time
 - Never run git commands (commit, push, tag, branch)
-- Never modify `PROJECT.md` or `RULES.md` without explicit request
+- Never modify `agents/PROJECT.md` or `agents/RULES.md` without explicit request
 - When in doubt about scope: ask, do not assume
 
 ## Output Language

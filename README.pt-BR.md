@@ -1,12 +1,12 @@
-# SDD Workflow — Manual do Desenvolvedor
+# SDD Workflow
 
-Um workflow estruturado para desenvolvimento assistido por IA utilizando **Spec Driven Development (SDD)** e a metodologia **Research → Plan → Implement (RPI)**.
+Um workflow estruturado para desenvolvimento assistido por IA usando **Spec Driven Development (SDD)** e a metodologia **Research → Plan → Implement (RPI)**.
 
-Projetado para IDEs agênticas com acesso ao filesystem (Claude Code, Antigravity, OpenCode, Codex CLI, entre outras), onde o agente atua como pair programmer: controlado, rastreável e orientado por spec.
+Projetado para IDEs agênticos com acesso ao sistema de arquivos (Claude Code, OpenCode, Codex CLI e outros), onde o agente atua como um pair programmer: controlado, rastreável e orientado por specs.
 
 ---
 
-## Sumário
+## Conteúdo
 
 1. [Conceitos Fundamentais](#1-conceitos-fundamentais)
 2. [Pré-requisitos](#2-pré-requisitos)
@@ -24,11 +24,11 @@ Projetado para IDEs agênticas com acesso ao filesystem (Claude Code, Antigravit
 
 ### Spec Driven Development (SDD)
 
-Toda feature começa com uma spec. Nenhum código é escrito sem um `SPEC.md` e um `TASK.md`. Isso evita scope creep, preserva decisões arquiteturais e torna o desenvolvimento assistido por IA auditável e reproduzível.
+Toda feature começa com uma spec. Nenhum código é escrito sem um `SPEC.md` e um `TASK.md`. Isso previne scope creep, preserva decisões arquiteturais e torna o desenvolvimento assistido por IA auditável e reproduzível.
 
 ### Research → Plan → Implement (RPI)
 
-Cada feature passa por três fases isoladas. Cada fase roda em sua própria sessão do agente e produz um único artefato que se torna o contexto exclusivo da próxima fase.
+Cada feature passa por três fases isoladas. Cada fase roda em sua própria sessão de agente e produz um único artefato que se torna o único contexto para a próxima fase.
 
 ```
 RESEARCH → PLAN → IMPLEMENT
@@ -42,14 +42,14 @@ RESEARCH → PLAN → IMPLEMENT
 
 ### Por que sessões isoladas?
 
-Cada sessão começa do zero. Passar apenas o artefato da fase anterior — em vez de todo o histórico da conversa — mantém o contexto enxuto, reduz gasto de tokens e evita context rot ao longo de ciclos de desenvolvimento longos.
+Cada sessão começa do zero. Passar apenas o artefato da fase anterior — em vez de todo o histórico da conversa — mantém o contexto enxuto, reduz desperdício de tokens e evita context rot em ciclos longos de desenvolvimento.
 
 ---
 
 ## 2. Pré-requisitos
 
-- Uma IDE agêntica com **acesso de leitura e escrita ao filesystem** (Claude Code, Antigravity, OpenCode, Codex CLI, Cursor, Windsurf ou equivalente)
-- O agente deve ser capaz de ler e escrever arquivos dentro do diretório do projeto
+- Um IDE agêntico com **acesso de leitura/escrita ao sistema de arquivos** (Claude Code, OpenCode, Codex CLI, Cursor, Windsurf ou equivalente)
+- O agente deve conseguir ler e escrever arquivos dentro do diretório do projeto
 - Nenhuma linguagem ou framework específico é necessário — o workflow é agnóstico de stack
 
 ---
@@ -57,24 +57,37 @@ Cada sessão começa do zero. Passar apenas o artefato da fase anterior — em v
 ## 3. Estrutura de Diretórios
 
 ```
+AGENTS.md                       ← Ponto de entrada — carregado automaticamente por qualquer harness (não modificar)
+opencode.json                   ← Opcional: config do harness OpenCode
+.claude/
+  settings.json                 ← Opcional: config do harness Claude Code
 agents/
-  AGENTS.md                   ← Papel do agente e definição do ciclo SDD
-  RULES.md                    ← Regras de processo obrigatórias (git, tarefas, decisões)
-  PROJECT.md                  ← Stack, arquitetura e regras específicas do projeto
-  DECISIONS.md                ← Log de decisões arquiteturais (somente append)
-  SETUP.md                    ← Guia de configuração inicial (deletar após o setup)
+  AGENTS.md                     ← Definição completa do workflow e ciclo SDD
+  RULES.md                      ← Regras obrigatórias de processo (git, tarefas, decisões)
+  PROJECT.md                    ← Stack, arquitetura e regras específicas do stack
+  DECISIONS.md                  ← Log append-only de decisões arquiteturais
+  SETUP.md                      ← Guia de configuração inicial (deletar após setup)
+  harness/                      ← Configs opcionais de enforcement por harness
+    README.md
+    claude-code/
+      settings.json             ← Copiar para .claude/settings.json para ativar
+    opencode/
+      opencode.json             ← Copiar para a raiz do projeto para ativar
   prompts/
-    rpi-research.md           ← Fase 1: prompt de Research
-    rpi-plan.md               ← Fase 2: prompt de Plan
-    rpi-implement.md          ← Fase 3: prompt de Implement
-    task-create.md            ← Utilitário: criar uma tarefa manualmente
-    skill-call.md             ← Utilitário: invocar uma skill específica
-    conventional-commit.md    ← Utilitário: gerar mensagem de commit convencional
-    pr-template.md            ← Utilitário: gerar descrição de pull request
+    rpi-research.md             ← Fase 1: prompt de Research
+    rpi-plan.md                 ← Fase 2: prompt de Plan
+    rpi-implement.md            ← Fase 3: prompt de Implement
+    task-create.md              ← Utilitário: criar uma tarefa manualmente
+    skill-call.md               ← Utilitário: invocar uma skill específica
+    conventional-commit.md      ← Utilitário: gerar mensagem de commit convencional
+    pr-template.md              ← Utilitário: gerar descrição de pull request
   skills/
-    [um arquivo .md por capacidade]
+    _template/
+      SKILL.md                  ← Template para novas skills
+    [nome-da-capacidade]/       ← Uma pasta por capacidade reutilizável
+      SKILL.md
   specs/
-    001-nome-da-feature/
+    NNN-nome-da-feature/
       RESEARCH.md
       SPEC.md
       TASK.md
@@ -83,34 +96,31 @@ agents/
       TEST.md
 ```
 
-Um diretório `docs/` opcional na raiz do projeto (fora de `agents/`) pode ser usado para
-centralizar documentos de referência que servem como insumo para o workflow:
+Um diretório `docs/` opcional na raiz do projeto (fora de `agents/`) pode ser usado para centralizar documentos de referência que servem como entrada para o workflow:
 
 ```
 docs/                         ← opcional, na raiz do projeto
   prd.md                      ← requisitos do produto
   roadmap.md                  ← priorização de features
   architecture.md             ← decisões arquiteturais de alto nível
-  business-rules.md           ← regras de negócio do domínio
+  business-rules.md           ← regras de domínio
   api-contracts/              ← referências de APIs externas
   rfcs/                       ← propostas arquiteturais
   research/                   ← spikes técnicos e avaliações
 ```
 
-Esses documentos não fazem parte do workflow em si — são consultados como insumo
-durante as fases de Research e Plan quando relevantes.
+Esses documentos não fazem parte do workflow em si — são consultados como entrada durante as fases de Research e Plan quando relevante.
 
 ---
 
 ### Arquivos lidos em toda sessão
 
-`AGENTS.md`, `PROJECT.md`, `RULES.md`
-
+`AGENTS.md` (raiz) → `agents/AGENTS.md`, `agents/PROJECT.md`, `agents/RULES.md`
 > Mantenha esses arquivos densos e escaneáveis. Cada token conta.
 
 ### Arquivos lidos por tarefa (sob demanda)
 
-`SPEC.md`, `TASK.md`, `PROGRESS.md` e as skills relevantes de `agents/skills/`
+`agents/specs/NNN/SPEC.md`, `TASK.md`, `PROGRESS.md` e skills relevantes de `agents/skills/*/SKILL.md`
 
 ---
 
@@ -118,18 +128,23 @@ durante as fases de Research e Plan quando relevantes.
 
 ### Passo 1 — Copie o template
 
-Copie **apenas o diretório `agents/`** para a raiz do seu projeto. Nenhum outro arquivo
-deste repositório é necessário — o `README.md` e demais arquivos da raiz ficam para trás.
+Copie **o `AGENTS.md` da raiz e o diretório `agents/`** para a raiz do seu projeto.
+
+```
+AGENTS.md        ← obrigatório na raiz do projeto
+agents/          ← obrigatório
+```
+
+O `README.md` e os demais arquivos da raiz ficam para trás — não são necessários no projeto de destino.
 
 ### Passo 2 — Execute o setup
 
 Abra uma nova sessão do agente e instrua-o a seguir o arquivo de setup:
-
 > *"Leia e siga as instruções em `agents/SETUP.md`"*
 
-O agente lerá o arquivo diretamente do filesystem e configurará o workflow automaticamente com base no que você fornecer. Não é necessário copiar ou colar seu conteúdo.
+O agente lerá o arquivo diretamente do filesystem e configurará o workflow automaticamente com base no que você fornecer.
 
-O arquivo de setup instrui o agente a produzir três saídas: `PROJECT.md`, `DECISIONS.md` e os arquivos de skill em `agents/skills/`, usando como fonte (em ordem de prioridade) o PRD fornecido, os arquivos do projeto existente, ou fazendo perguntas quando faltar informação crítica.
+O arquivo de setup instrui o agente a produzir três saídas: `agents/PROJECT.md`, `agents/DECISIONS.md` e uma pasta de skill por capacidade relevante em `agents/skills/`.
 
 ---
 
@@ -141,17 +156,17 @@ O arquivo de setup instrui o agente a produzir três saídas: `PROJECT.md`, `DEC
 | Projeto existente | Apenas envie a instrução — o agente escaneia o projeto |
 | Projeto existente + PRD | Forneça o PRD junto — o agente combina as duas fontes |
 
-> O agente aceita requisitos em qualquer forma: um caminho de arquivo (`docs/prd.md`),
-> uma descrição inline no próprio prompt ou um documento anexado. Use o que for mais conveniente.
+> O agente aceita requisitos em qualquer forma: um caminho de arquivo (`docs/prd.md`), uma descrição inline no próprio prompt ou um documento anexado.
 
 ### Passo 3 — Revise e delete o SETUP.md
 
 Após o agente gerar os arquivos, revise e confirme:
 
-- [ ] `PROJECT.md` não tem placeholders `[FILL: ...]` restantes
-- [ ] `DECISIONS.md` reflete decisões existentes (projetos existentes) ou está vazio (projetos novos)
-- [ ] Ao menos um arquivo de skill existe em `agents/skills/`
-- [ ] `AGENTS.md` e `RULES.md` estão sem modificações
+- [ ] `AGENTS.md` da raiz está presente e sem modificações
+- [ ] `agents/PROJECT.md` não tem placeholders `[FILL: ...]` restantes
+- [ ] `agents/DECISIONS.md` reflete decisões existentes (projetos existentes) ou está vazio (projetos novos)
+- [ ] Ao menos uma pasta de skill existe em `agents/skills/` (ex: `agents/skills/data-access/SKILL.md`)
+- [ ] `agents/AGENTS.md` e `agents/RULES.md` estão sem modificações
 
 Então delete `agents/SETUP.md`.
 
@@ -197,18 +212,13 @@ Cada feature segue o mesmo ciclo de três fases, sempre em sessões isoladas.
 
 ### Transição entre fases
 
-Cada fase termina quando você revisa e aprova os artefatos gerados. Para avançar à próxima
-fase, abra uma **nova sessão do agente** e referencie a pasta da spec — os artefatos no
-filesystem são o único contexto que o agente precisa.
+Cada fase termina quando você revisa e aprova os artefatos gerados. Para avançar à próxima fase, abra uma **nova sessão do agente** e referencie a pasta da spec.
 
 **Research → Plan:**
 > *"Leia e siga `agents/prompts/rpi-plan.md`. A spec está em `agents/specs/NNN-nome-da-spec/`"*
 
 **Plan → Implement:**
 > *"Leia e siga `agents/prompts/rpi-implement.md`. A spec está em `agents/specs/NNN-nome-da-spec/`"*
-
-> O caminho da spec é o único contexto adicional necessário. Sem ele o agente não consegue
-> determinar qual spec está ativa se houver mais de uma em andamento.
 
 ### Pasta da spec após um ciclo completo
 
@@ -230,7 +240,13 @@ Skills são arquivos de instrução focados que o agente carrega **apenas quando
 
 ### Como o agente decide quais skills carregar
 
-Antes de implementar uma tarefa, o agente escaneia `agents/skills/` e lê a seção **"When to use this skill"** de cada arquivo. Se a seção corresponder à tarefa atual, a skill é carregada no contexto.
+Antes de implementar uma tarefa, o agente executa:
+
+```bash
+grep -A 8 "## When to use" agents/skills/*/SKILL.md
+```
+
+Ele lê apenas a seção "When to use this skill" de cada arquivo. Se a seção corresponder à tarefa atual, o `SKILL.md` completo é carregado.
 
 > A qualidade da detecção de skills depende diretamente de quão específica e precisa está a seção "When to use".
 
@@ -254,20 +270,23 @@ Use `agents/prompts/skill-call.md` quando quiser garantir que uma skill seja apl
 
 ## Checklist
 - [ ] Itens a verificar antes de finalizar a tarefa
+
+## Constraints
+- [Regra rígida específica desta capacidade]
 ```
 
 > Os arquivos de skill são escritos em inglês para economizar tokens — eles são lidos pelo agente a cada sessão relevante.
 
 ### Skills comuns a criar
 
-| Arquivo | Criar quando... |
+| Pasta | Criar quando... |
 |---|---|
-| `ui-components.md` | O projeto tem uma camada de UI |
-| `data-access.md` | O projeto usa banco de dados ou camada de persistência |
-| `auth.md` | O projeto tem autenticação ou autorização |
-| `validation.md` | O projeto valida entrada de usuário ou dados externos |
-| `api-integration.md` | O projeto consome APIs externas |
-| `error-handling.md` | O projeto tem formato de erro ou estratégia de logging definidos |
+| `agents/skills/ui-components/` | O projeto tem uma camada de UI |
+| `agents/skills/data-access/` | O projeto usa banco de dados ou camada de persistência |
+| `agents/skills/auth/` | O projeto tem autenticação ou autorização |
+| `agents/skills/validation/` | O projeto valida entrada de usuário ou dados externos |
+| `agents/skills/api-integration/` | O projeto consome APIs externas |
+| `agents/skills/error-handling/` | O projeto tem formato de erro ou estratégia de logging definidos |
 
 ---
 
@@ -287,13 +306,11 @@ Esses prompts são usados manualmente pelo desenvolvedor — não fazem parte do
 Abra uma nova sessão do agente e instrua-o a ler o arquivo de prompt diretamente:
 > *"Leia e siga `agents/prompts/conventional-commit.md`"*
 
-Substitua o nome do arquivo pelo prompt desejado. Substitua os `<PLACEHOLDERS>` mencionados no arquivo pelos valores relevantes.
-
 ---
 
 ## 8. Regras de Comportamento
 
-Estas regras são definidas em `AGENTS.md` e `RULES.md` e se aplicam a toda sessão:
+Estas regras são definidas em `agents/AGENTS.md` e `agents/RULES.md` e se aplicam a toda sessão:
 
 | Regra | Descrição |
 |---|---|
@@ -314,20 +331,14 @@ Estas regras são definidas em `AGENTS.md` e `RULES.md` e se aplicam a toda sess
 
 ## 9. Boas Práticas
 
-**Mantenha o PROJECT.md enxuto**
-Ele é lido em toda sessão. Cada linha desnecessária custa tokens. Use tabelas, evite parágrafos.
+**Mantenha o PROJECT.md enxuto** — ele é lido em toda sessão. Cada linha desnecessária custa tokens. Use tabelas, evite parágrafos.
 
-**Uma spec por feature, uma tarefa por sessão**
-Resista à tentação de agrupar. Tarefas pequenas e atômicas produzem output mais previsível e revisável.
+**Uma spec por feature, uma tarefa por sessão** — resista à tentação de agrupar. Tarefas pequenas e atômicas produzem output mais previsível e revisável.
 
-**Revise antes de confirmar**
-O agente para após cada tarefa e aguarda sua aprovação. Use esse checkpoint — revise o diff antes de confirmar a próxima tarefa.
+**Revise antes de confirmar** — o agente para após cada tarefa e aguarda sua aprovação. Use esse checkpoint — revise o diff antes de confirmar a próxima tarefa.
 
-**Skills em vez de instruções repetidas**
-Se você se pega explicando o mesmo padrão em múltiplas sessões, ele pertence a um arquivo de skill.
+**Skills em vez de instruções repetidas** — se você se pega explicando o mesmo padrão em múltiplas sessões, ele pertence a um arquivo de skill.
 
-**Decisões são contexto permanente**
-Cada entrada no `DECISIONS.md` impede o agente de questionar ou re-decidir algo já definido. Mantenha-o atualizado.
+**Decisões são contexto permanente** — cada entrada no `DECISIONS.md` impede o agente de questionar ou re-decidir algo já definido. Mantenha-o atualizado.
 
-**Não modifique AGENTS.md ou RULES.md**
-Regras específicas do stack pertencem ao `PROJECT.md` na seção Stack Rules. Modificar os arquivos centrais quebra o contrato do workflow.
+**Não modifique `agents/AGENTS.md` ou `agents/RULES.md`** — regras específicas do stack pertencem ao `agents/PROJECT.md` na seção Stack Rules.
