@@ -61,9 +61,9 @@ agents/skills/
 ## Anti-patterns
 [Code examples of what NOT to do, with reason]
 
-## Checklist
-- [ ] Item agents must verify before finishing the task
-
 ## Constraints
 - [Hard rule specific to this capability]
+
+## Checklist
+- [ ] Item agents must verify before finishing the task
 ```

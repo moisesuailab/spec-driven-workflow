@@ -5,6 +5,8 @@
 [Specific task types that trigger this skill. Be precise — the agent uses this section
 to decide whether to load the skill. Vague descriptions reduce detection accuracy.]
 
+---
+
 ## Patterns
 
 [Correct approach with code examples from this project's stack]
@@ -13,17 +15,23 @@ to decide whether to load the skill. Vague descriptions reduce detection accurac
 // example
 ```
 
+---
+
 ## Anti-patterns
 
 | Anti-pattern | Why to avoid |
 |---|---|
 | [What NOT to do] | [Reason] |
 
-## Checklist
-
-- [ ] [Item the agent must verify before finishing a task using this skill]
-- [ ] [Another verification item]
+---
 
 ## Constraints
 
 - [Hard rule specific to this capability]
+
+---
+
+## Checklist
+
+- [ ] [Item the agent must verify before finishing a task using this skill]
+- [ ] [Another verification item]
