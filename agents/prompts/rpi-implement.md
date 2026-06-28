@@ -29,6 +29,7 @@ You will implement **one single task** from an already planned feature.
 2. Implement only what is necessary for that single task
 3. State exactly **which file** was created or modified
 4. After completing:
+   - Confirm the `verify:` condition on the completed task is met before marking it done
    - Mark `[x]` on the task in TASK.md
    - Update PROGRESS.md with what was done and any observations
    - Record relevant architectural decisions in DECISIONS.md

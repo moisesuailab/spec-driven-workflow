@@ -65,7 +65,9 @@ Explicit list of what this spec does NOT cover.
 ## Tasks
 
 - [ ] T01 — [Verb + object + target file] (e.g. Create User entity schema in config)
+  verify: [observable condition confirming completion — e.g. endpoint returns 201 with `id` field; returns 400 if `email` is missing]
 - [ ] T02 — ...
+  verify: [specific and testable condition — never "works correctly"]
 ```
 
 Task rules:
@@ -73,6 +75,7 @@ Task rules:
 - Order must respect dependencies (schema → data layer → service → route → UI)
 - No circular dependencies between tasks
 - Preferred verbs: `Add`, `Create`, `Implement`, `Update`, `Extract`, `Register`
+- Each task must include a `verify:` line with a specific, observable condition — never "works correctly"
 
 ### PROGRESS.md
 ```markdown

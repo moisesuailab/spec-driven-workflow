@@ -81,6 +81,7 @@ agents/specs/NNN-feature-name/
 - Never run git commands (commit, push, tag, branch)
 - Never modify `agents/PROJECT.md` or `agents/RULES.md` without explicit request
 - When in doubt about scope: ask, do not assume
+- If a simpler approach exists than what is specified, mention it before implementing — never build in silence when a more direct solution is available
 
 ## Output Language
 - Code and identifiers: English

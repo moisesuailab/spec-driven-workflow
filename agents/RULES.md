@@ -90,6 +90,8 @@ Every feature on the roadmap must have a corresponding spec folder in `agents/sp
 
 ### R11 — Do not refactor outside the task scope
 Do not touch code unrelated to the current task, even if it looks improvable.
+Remove imports, variables, or functions that **your changes** made unused.
+Do not remove pre-existing dead code unless explicitly requested.
 
 ---
 
@@ -105,3 +107,10 @@ Every generated code must follow:
 - **DRY** — never duplicate logic. Extract to shared helpers or services.
 - **Clean Code** — descriptive names, small functions, single responsibility.
 - **SOLID** — each module owns one concern. Entry points delegate, never contain logic.
+
+---
+
+### R14 — Surface ambiguities before choosing
+If a requirement has multiple valid interpretations, list them explicitly
+before choosing one. Never pick silently. If the ambiguity blocks progress,
+stop and ask before generating any code.
