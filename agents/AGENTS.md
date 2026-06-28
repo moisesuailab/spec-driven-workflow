@@ -29,7 +29,7 @@ Before any action, read:
 Each phase runs in an **isolated session**. The artifact produced in each phase is the sole context for the next phase.
 
 ```
-RESEARCH → PLAN → IMPLEMENT → TEST
+RESEARCH → PLAN → IMPLEMENT → VALIDATE
 ```
 
 | Phase | Prompt | Reads | Produces |
@@ -37,6 +37,7 @@ RESEARCH → PLAN → IMPLEMENT → TEST
 | Research | `rpi-research.md` | `PROJECT.md` + `RULES.md` + requirements | `RESEARCH.md` |
 | Plan | `rpi-plan.md` | `PROJECT.md` + `RULES.md` + `RESEARCH.md` | `SPEC.md` + `TASK.md` + `PROGRESS.md` + `TEST.md` |
 | Implement | `rpi-implement.md` | `PROJECT.md` + `RULES.md` + `SPEC.md` + `TASK.md` + `PROGRESS.md` + relevant skill(s)¹ | code + updated `TASK.md` + updated `PROGRESS.md` |
+| Validate | `rpi-validate.md` | `SPEC.md` + `TASK.md` + `TEST.md` + `PROGRESS.md` + produced code | `VALIDATION.md` |
 
 > ¹ Run `grep -A 8 "## When to use" agents/skills/*/SKILL.md` to scan skill descriptions. Load the full `SKILL.md` only for skills relevant to the task.
 
@@ -46,12 +47,13 @@ RESEARCH → PLAN → IMPLEMENT → TEST
 
 ```
 agents/specs/NNN-feature-name/
-  RESEARCH.md   — compressed understanding of the feature (produced in Research)
-  SPEC.md       — functional requirements, business rules, UI section (produced in Plan)
-  TASK.md       — task breakdown derived from the spec (produced in Plan)
-  PROGRESS.md   — current execution state (produced in Plan, updated in Implement)
-  DECISIONS.md  — feature-local decisions (updated as needed)
-  TEST.md       — acceptance test cases in given/when/then format (produced in Plan)
+  RESEARCH.md    — compressed understanding of the feature (produced in Research)
+  SPEC.md        — functional requirements, business rules, UI section (produced in Plan)
+  TASK.md        — task breakdown derived from the spec (produced in Plan)
+  PROGRESS.md    — current execution state (produced in Plan, updated in Implement)
+  DECISIONS.md   — feature-local decisions (updated as needed)
+  TEST.md        — acceptance test cases in given/when/then format (produced in Plan)
+  VALIDATION.md  — coverage matrix and approval status (produced in Validate)
 ```
 
 ---
